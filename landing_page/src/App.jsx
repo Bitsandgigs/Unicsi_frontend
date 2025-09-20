@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import Integrations from "./components/Integrations";
 import Testimonials from "./components/Testimonials";
 import LetsTalk from "./components/LetsTalk";
+import Inventory from "./components/Inventory";
 import "./App.css";
 
 
@@ -15,6 +16,7 @@ function App() {
       {/* <Home /> */}
       <Logistics />
       <CTASection />
+      <Inventory />
       <Services />
       <Integrations />
       <Testimonials />
