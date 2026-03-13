@@ -13,53 +13,53 @@ import {
 } from "recharts";
 
 const areaData = [
-  { date: "13 Aug", orders: 20000, gmv: 10000 },
-  { date: "14 Aug", orders: 40000, gmv: 15000 },
-  { date: "15 Aug", orders: 125200, gmv: 70000 },
-  { date: "16 Aug", orders: 100000, gmv: 60000 },
-  { date: "17 Aug", orders: 140000, gmv: 90000 },
-  { date: "18 Aug", orders: 80000, gmv: 50000 },
-  { date: "19 Aug", orders: 220000, gmv: 120000 },
-  { date: "20 Aug", orders: 180000, gmv: 100000 },
+  { date: "13 Aug", orders: 0, gmv: 0 },
+  { date: "14 Aug", orders: 0, gmv: 0 },
+  { date: "15 Aug", orders: 0, gmv: 0 },
+  { date: "16 Aug", orders: 0, gmv: 0 },
+  { date: "17 Aug", orders: 0, gmv: 0 },
+  { date: "18 Aug", orders: 0, gmv: 0 },
+  { date: "19 Aug", orders: 0, gmv: 0 },
+  { date: "20 Aug", orders: 0, gmv: 0 },
 ];
 
 const barData = [
-  { date: "12 Aug", value: 50 },
-  { date: "13 Aug", value: 70 },
-  { date: "14 Aug", value: 60 },
-  { date: "15 Aug", value: 80 },
-  { date: "16 Aug", value: 75 },
-  { date: "17 Aug", value: 40 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 50 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 30 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 80 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 70 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 50 },
-  { date: "17 Aug", value: 90 },
-  { date: "17 Aug", value: 40 },
+  { date: "12 Aug", value: 0 },
+  { date: "13 Aug", value: 0 },
+  { date: "14 Aug", value: 0 },
+  { date: "15 Aug", value: 0 },
+  { date: "16 Aug", value: 0 },
+  { date: "17 Aug", value: 0 },
+  { date: "18 Aug", value: 0 },
+  { date: "19 Aug", value: 0 },
+  { date: "20 Aug", value: 0 },
+  { date: "21 Aug", value: 0 },
+  { date: "22 Aug", value: 0 },
+  { date: "23 Aug", value: 0 },
+  { date: "24 Aug", value: 0 },
+  { date: "25 Aug", value: 0 },
+  { date: "26 Aug", value: 0 },
+  { date: "27 Aug", value: 0 },
+  { date: "28 Aug", value: 0 },
+  { date: "29 Aug", value: 0 },
+  { date: "30 Aug", value: 0 },
+  { date: "31 Aug", value: 0 },
+  { date: "1 Sep", value: 0 },
+  { date: "2 Sep", value: 0 },
+  { date: "3 Sep", value: 0 },
+  { date: "4 Sep", value: 0 },
+  { date: "5 Sep", value: 0 },
+  { date: "6 Sep", value: 0 },
 ];
 
 const lineData = [
-  { time: "12 AM", value: 5 },
-  { time: "4 AM", value: 15 },
-  { time: "8 AM", value: 8 },
-  { time: "12 PM", value: 20 },
-  { time: "4 PM", value: 45 },
-  { time: "8 PM", value: 10 },
-  { time: "11 PM", value: 5 },
+  { time: "12 AM", value: 0 },
+  { time: "4 AM", value: 0 },
+  { time: "8 AM", value: 0 },
+  { time: "12 PM", value: 0 },
+  { time: "4 PM", value: 0 },
+  { time: "8 PM", value: 0 },
+  { time: "11 PM", value: 0 },
 ];
 
 // ── Custom Tooltip ────────────────────────────────────────────────────────────
@@ -216,9 +216,9 @@ function OrdersAndGMVCard() {
             letterSpacing: "-0.02em",
           }}
         >
-          240.8K
+          0
         </span>
-        <StatBadge value="24.6%" up />
+        <StatBadge value="0%" up />
       </div>
 
       {/* Chart */}
@@ -313,7 +313,7 @@ function MarginAppliedCard() {
         }}
       >
         <span style={{ fontSize: "1.4rem", fontWeight: 800, color: "#000" }}>
-          144.6K
+          0
         </span>
         <StatBadge value="As a % of GMV" up />
       </div>
@@ -369,9 +369,9 @@ function TotalOrdersCard() {
         }}
       >
         <span style={{ fontSize: "1.4rem", fontWeight: 800, color: "#000" }}>
-          400
+          0
         </span>
-        <StatBadge value="16.8%" up />
+        <StatBadge value="0%" up />
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
         <ResponsiveContainer width="100%" height="100%">

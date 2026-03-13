@@ -25,7 +25,7 @@ const GRADIENT_HOVER = "linear-gradient(135deg, #007a91 0%, #65c040 100%)";
 
 // Stable avatar URL — seeded on the user's identifier so it never changes
 const AVATAR_URL =
-  "https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  "https://images.unsplash.com/photo-1772371272228-f4a8247cfe6d?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 function usePageName() {
   if (typeof window === "undefined") return "Dashboard";

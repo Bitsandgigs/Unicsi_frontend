@@ -10,6 +10,7 @@ import {
   ListItemText,
   Box,
   IconButton,
+  Divider,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -24,7 +25,6 @@ import HelpIcon from "@mui/icons-material/Help";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import PersonIcon from "@mui/icons-material/Person";
 import AddIcon from "@mui/icons-material/Add";
-import { fetchProfile } from "../../services/prodile/profile.service";
 import logo from "../../assets/images/logo.png";
 
 const DRAWER_WIDTH = 280;
@@ -32,7 +32,7 @@ const DRAWER_WIDTH_COLLAPSED = 80;
 const GRADIENT = "linear-gradient(135deg, #0097b2 0%, #7ed957 100%)";
 const GRADIENT_HOVER = "linear-gradient(135deg, #007a91 0%, #65c040 100%)";
 
-const menuItems = [
+const mainMenuItems = [
   { name: "Manage Orders", icon: ShoppingCartIcon, path: "/order" },
   { name: "Manage RTO / Returns", icon: TrendingUpIcon, path: "/rto-returns" },
   { name: "Add Product", icon: AddIcon, path: "/products" },
@@ -41,26 +41,30 @@ const menuItems = [
   { name: "Reports", icon: TrendingUpIcon, path: "/reports" },
   { name: "Payments", icon: PaymentIcon, path: "/payments" },
   { name: "Profile", icon: PersonIcon, path: "/profile" },
-  { name: "Setting", icon: SettingsIcon, path: "/settings" },
-  { name: "FAQs", icon: HelpIcon, path: "/faqs" },
-  { name: "Supports", icon: SupportAgentIcon, path: "/supports" },
 ];
 
-const pendingMenuItems = [
-  { name: "Profile", icon: PersonIcon, path: "/profile" },
+const secondaryMenuItems = [
   { name: "Setting", icon: SettingsIcon, path: "/settings" },
-  { name: "FAQs", icon: HelpIcon, path: "/faqs" },
+  { name: "FAQs", icon: HelpIcon, path: null, pdfPath: "/faq.pdf" },
   { name: "Supports", icon: SupportAgentIcon, path: "/supports" },
 ];
 
 function NavItem({ item, isActive, open = true }) {
   const IconComponent = item.icon;
 
+  const handleClick = (e) => {
+    if (item.pdfPath) {
+      e.preventDefault();
+      window.open(item.pdfPath, "_blank");
+    }
+  };
+
   return (
     <ListItemButton
-      href={item.path}
+      href={item.path || "#"}
       component="a"
       selected={isActive}
+      onClick={handleClick}
       sx={{
         borderRadius: 2,
         mb: 0.5,
@@ -71,8 +75,6 @@ function NavItem({ item, isActive, open = true }) {
         transition: "background 0.2s ease",
         minHeight: open ? "auto" : 56,
         borderLeft: "3px solid transparent",
-
-        // ── Default state ──────────────────────────────────────────────
         background: "transparent",
         "& .MuiListItemIcon-root svg": {
           fill: "#1a1a1a !important",
@@ -85,8 +87,6 @@ function NavItem({ item, isActive, open = true }) {
           fontWeight: 500,
           fontSize: "0.95rem",
         },
-
-        // ── Hover state ────────────────────────────────────────────────
         "&:hover": {
           background: GRADIENT_HOVER,
           borderLeft: "3px solid #7ed957",
@@ -94,13 +94,8 @@ function NavItem({ item, isActive, open = true }) {
             fill: "#ffffff !important",
             color: "#ffffff !important",
           },
-          "& .MuiListItemText-primary": {
-            color: "#ffffff",
-            fontWeight: 600,
-          },
+          "& .MuiListItemText-primary": { color: "#ffffff", fontWeight: 600 },
         },
-
-        // ── Selected / Active state (MUI .Mui-selected) ────────────────
         "&.Mui-selected": {
           background: GRADIENT,
           borderLeft: "3px solid #7ed957",
@@ -108,39 +103,26 @@ function NavItem({ item, isActive, open = true }) {
             fill: "#ffffff !important",
             color: "#ffffff !important",
           },
-          "& .MuiListItemText-primary": {
-            color: "#ffffff",
-            fontWeight: 700,
-          },
+          "& .MuiListItemText-primary": { color: "#ffffff", fontWeight: 700 },
         },
-
-        // ── Selected + Hover (keep gradient, don't go transparent) ─────
         "&.Mui-selected:hover": {
           background: GRADIENT_HOVER,
           borderLeft: "3px solid #7ed957",
         },
-
         "& .MuiTouchRipple-root": { color: "rgba(255,255,255,0.15)" },
       }}
       title={!open ? item.name : ""}
     >
       <ListItemIcon
-        sx={{
-          minWidth: open ? 40 : "auto",
-          justifyContent: "center",
-        }}
+        sx={{ minWidth: open ? 40 : "auto", justifyContent: "center" }}
       >
         <IconComponent />
       </ListItemIcon>
-
       {open && (
         <ListItemText
           primary={item.name}
           primaryTypographyProps={{
-            sx: {
-              whiteSpace: "nowrap",
-              transition: "color 0.15s ease",
-            },
+            sx: { whiteSpace: "nowrap", transition: "color 0.15s ease" },
           }}
         />
       )}
@@ -148,10 +130,44 @@ function NavItem({ item, isActive, open = true }) {
   );
 }
 
+function NavList({ pathname, open }) {
+  return (
+    <>
+      {mainMenuItems.map((item, idx) => (
+        <NavItem
+          key={idx}
+          item={item}
+          isActive={
+            !!pathname &&
+            (pathname === item.path || pathname.startsWith(item.path + "/"))
+          }
+          open={open}
+        />
+      ))}
+
+      {/* Divider between main nav and support section */}
+      <Box sx={{ px: 1, py: 1 }}>
+        <Divider sx={{ borderColor: "#e0f4f7" }} />
+      </Box>
+
+      {secondaryMenuItems.map((item, idx) => (
+        <NavItem
+          key={idx}
+          item={item}
+          isActive={
+            !!pathname &&
+            (pathname === item.path || pathname.startsWith(item.path + "/"))
+          }
+          open={open}
+        />
+      ))}
+    </>
+  );
+}
+
 export default function Sidebar() {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isProfileCompleted, setIsProfileCompleted] = useState(null);
   const { pathname } = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -164,21 +180,6 @@ export default function Sidebar() {
     if (isMobile) setMobileOpen((v) => !v);
     else setOpen((v) => !v);
   };
-
-  useEffect(() => {
-    async function load() {
-      const res = await fetchProfile();
-      setIsProfileCompleted(res.data?.data?.account_status);
-    }
-    load();
-  }, []);
-
-  const items =
-    isProfileCompleted === null
-      ? []
-      : isProfileCompleted === "active"
-        ? menuItems
-        : pendingMenuItems;
 
   const sidebarContent = (showOpen = true) => (
     <Box
@@ -238,17 +239,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <List sx={{ flex: 1, px: 1, pt: 1 }}>
-        {items.map((item, idx) => (
-          <NavItem
-            key={idx}
-            item={item}
-            isActive={
-              !!pathname &&
-              (pathname === item.path || pathname.startsWith(item.path + "/"))
-            }
-            open={showOpen ? open : true}
-          />
-        ))}
+        <NavList pathname={pathname} open={showOpen ? open : true} />
       </List>
 
       <Box sx={{ height: 4, background: GRADIENT, flexShrink: 0 }} />
@@ -310,18 +301,7 @@ export default function Sidebar() {
               </IconButton>
             </Box>
             <List sx={{ px: 1, pt: 1 }}>
-              {items.map((item, idx) => (
-                <NavItem
-                  key={idx}
-                  item={item}
-                  isActive={
-                    !!pathname &&
-                    (pathname === item.path ||
-                      pathname.startsWith(item.path + "/"))
-                  }
-                  open={true}
-                />
-              ))}
+              <NavList pathname={pathname} open={true} />
             </List>
             <Box sx={{ height: 4, background: GRADIENT }} />
           </Drawer>

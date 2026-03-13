@@ -18,14 +18,18 @@ import {
   Stack,
   Paper,
   CircularProgress,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { Edit, Trash2, Copy } from "lucide-react";
+import { Edit, Trash2, Copy, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../services/product/product.service";
 
 const GRADIENT = "linear-gradient(135deg, #0097b2 0%, #7ed957 100%)";
 const GRADIENT_HOVER = "linear-gradient(135deg, #007a91 0%, #65c040 100%)";
+
+const ROWS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
 function GradientButton({
   children,
@@ -36,11 +40,12 @@ function GradientButton({
   startIcon,
   as: As,
   to,
-  href,
+  disabled = false,
 }) {
   const [hovered, setHovered] = useState(false);
   const pad = size === "small" ? "6px 14px" : "9px 22px";
   const fontSize = size === "small" ? "0.8rem" : "0.875rem";
+  const isHovered = hovered && !disabled;
 
   const baseStyle = {
     display: "inline-flex",
@@ -50,36 +55,36 @@ function GradientButton({
     borderRadius: "9px",
     fontSize,
     fontWeight: 600,
-    cursor: "pointer",
+    cursor: disabled ? "not-allowed" : "pointer",
     whiteSpace: "nowrap",
     textDecoration: "none",
     transition: "all 0.2s ease",
     border: "none",
+    opacity: disabled ? 0.45 : 1,
     ...(danger
       ? {
-          background: hovered ? "#c62828" : "transparent",
-          color: hovered ? "#fff" : "#e53935",
+          background: isHovered ? "#c62828" : "transparent",
+          color: isHovered ? "#fff" : "#e53935",
           border: "1.5px solid #e53935",
           boxShadow: "none",
         }
       : secondary
         ? {
-            background: hovered ? GRADIENT : "transparent",
-            color: hovered ? "#fff" : "#0097b2",
+            background: isHovered ? GRADIENT : "transparent",
+            color: isHovered ? "#fff" : "#0097b2",
             border: "1.5px solid #0097b2",
             boxShadow: "none",
           }
         : {
-            background: hovered ? GRADIENT_HOVER : GRADIENT,
+            background: isHovered ? GRADIENT_HOVER : GRADIENT,
             color: "#fff",
-            boxShadow: hovered
+            boxShadow: isHovered
               ? "0 4px 14px rgba(0,151,178,0.3)"
               : "0 2px 8px rgba(0,151,178,0.2)",
           }),
   };
 
-  // Compute what the icon color should be at any hover state
-  const iconColor = hovered
+  const iconColor = isHovered
     ? "#fff"
     : danger
       ? "#e53935"
@@ -113,13 +118,226 @@ function GradientButton({
 
   return (
     <button
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       style={baseStyle}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {inner}
     </button>
+  );
+}
+
+// ── Pagination Component ──────────────────────────────────────────────────────
+function TablePagination({
+  total,
+  page,
+  rowsPerPage,
+  onPageChange,
+  onRowsPerPageChange,
+}) {
+  const totalPages = Math.ceil(total / rowsPerPage);
+  const from = total === 0 ? 0 : (page - 1) * rowsPerPage + 1;
+  const to = Math.min(page * rowsPerPage, total);
+
+  // Build page number buttons — show max 5 page pills
+  function getPageNumbers() {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (page <= 3) return [1, 2, 3, 4, 5];
+    if (page >= totalPages - 2)
+      return [
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    return [page - 2, page - 1, page, page + 1, page + 2];
+  }
+
+  const pages = getPageNumbers();
+  const showLeftEllipsis = totalPages > 5 && pages[0] > 1;
+  const showRightEllipsis =
+    totalPages > 5 && pages[pages.length - 1] < totalPages;
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        px: 2.5,
+        py: 1.8,
+        borderTop: "1.5px solid #e0f4f7",
+        background: "#f8fdfe",
+        borderRadius: "0 0 16px 16px",
+        flexWrap: "wrap",
+        gap: 1.5,
+      }}
+    >
+      {/* Left: rows info + rows-per-page selector */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography
+          sx={{ fontSize: "0.82rem", color: "#555", fontWeight: 500 }}
+        >
+          Showing{" "}
+          <strong style={{ color: "#000" }}>
+            {from}–{to}
+          </strong>{" "}
+          of <strong style={{ color: "#000" }}>{total}</strong> results
+        </Typography>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography
+            sx={{ fontSize: "0.78rem", color: "#888", whiteSpace: "nowrap" }}
+          >
+            Rows per page:
+          </Typography>
+          <Select
+            value={rowsPerPage}
+            onChange={(e) => {
+              onRowsPerPageChange(Number(e.target.value));
+              onPageChange(1);
+            }}
+            size="small"
+            variant="outlined"
+            sx={{
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              color: "#000",
+              height: 30,
+              "& fieldset": { borderColor: "#d0eef3", borderRadius: "8px" },
+              "&:hover fieldset": { borderColor: "#0097b2" },
+              "&.Mui-focused fieldset": { borderColor: "#0097b2" },
+              "& .MuiSelect-select": {
+                py: "4px",
+                pl: "10px",
+                pr: "28px !important",
+              },
+              "& .MuiSelect-icon": { color: "#0097b2" },
+            }}
+          >
+            {ROWS_PER_PAGE_OPTIONS.map((opt) => (
+              <MenuItem key={opt} value={opt} sx={{ fontSize: "0.82rem" }}>
+                {opt}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+      </Box>
+
+      {/* Right: page navigation */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        {/* Prev */}
+        <PaginationBtn
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 1}
+          icon={<ChevronLeft size={15} />}
+        />
+
+        {/* First page + ellipsis */}
+        {showLeftEllipsis && (
+          <>
+            <PaginationBtn
+              label={1}
+              active={false}
+              onClick={() => onPageChange(1)}
+            />
+            <EllipsisDot />
+          </>
+        )}
+
+        {/* Page numbers */}
+        {pages.map((p) => (
+          <PaginationBtn
+            key={p}
+            label={p}
+            active={p === page}
+            onClick={() => onPageChange(p)}
+          />
+        ))}
+
+        {/* Last page + ellipsis */}
+        {showRightEllipsis && (
+          <>
+            <EllipsisDot />
+            <PaginationBtn
+              label={totalPages}
+              active={false}
+              onClick={() => onPageChange(totalPages)}
+            />
+          </>
+        )}
+
+        {/* Next */}
+        <PaginationBtn
+          onClick={() => onPageChange(page + 1)}
+          disabled={page === totalPages || totalPages === 0}
+          icon={<ChevronRight size={15} />}
+        />
+      </Box>
+    </Box>
+  );
+}
+
+function PaginationBtn({ label, active, onClick, disabled, icon }) {
+  const [hovered, setHovered] = useState(false);
+  const isActive = active;
+  const isDisabled = disabled;
+
+  return (
+    <button
+      onClick={isDisabled ? undefined : onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        minWidth: 32,
+        height: 32,
+        borderRadius: "8px",
+        border: isActive ? "none" : "1.5px solid #d0eef3",
+        background: isActive
+          ? GRADIENT
+          : hovered && !isDisabled
+            ? "rgba(0,151,178,0.08)"
+            : "#fff",
+        color: isActive
+          ? "#fff"
+          : isDisabled
+            ? "#bbb"
+            : hovered
+              ? "#0097b2"
+              : "#444",
+        fontSize: "0.82rem",
+        fontWeight: isActive ? 700 : 500,
+        cursor: isDisabled ? "not-allowed" : "pointer",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "all 0.18s ease",
+        boxShadow: isActive ? "0 2px 8px rgba(0,151,178,0.25)" : "none",
+        padding: "0 6px",
+      }}
+    >
+      {icon || label}
+    </button>
+  );
+}
+
+function EllipsisDot() {
+  return (
+    <Box
+      sx={{
+        width: 28,
+        textAlign: "center",
+        fontSize: "0.85rem",
+        color: "#aaa",
+        userSelect: "none",
+      }}
+    >
+      …
+    </Box>
   );
 }
 
@@ -168,9 +386,12 @@ function PageShell({ children, showAddBtn = false }) {
   );
 }
 
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function ProductsList() {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const {
     data: productData,
@@ -180,6 +401,15 @@ export default function ProductsList() {
     queryKey: ["products"],
     queryFn: getProducts,
   });
+
+  const allProducts = productData?.data?.products ?? [];
+  const total = allProducts.length;
+
+  // Slice for current page
+  const paginatedProducts = allProducts.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage,
+  );
 
   const handleDelete = () => {
     if (selectedProduct) {
@@ -216,7 +446,7 @@ export default function ProductsList() {
   }
 
   // ── Empty ───────────────────────────────────────────────────────────────────
-  if (productData?.data?.products?.length === 0) {
+  if (total === 0) {
     return (
       <PageShell>
         <Paper
@@ -229,7 +459,6 @@ export default function ProductsList() {
             bgcolor: "#f8fdfe",
           }}
         >
-          {/* Empty state icon */}
           <Box
             sx={{
               width: 64,
@@ -281,8 +510,7 @@ export default function ProductsList() {
   // ── Main list ───────────────────────────────────────────────────────────────
   return (
     <PageShell showAddBtn>
-      <TableContainer
-        component={Paper}
+      <Paper
         elevation={0}
         sx={{
           borderRadius: "16px",
@@ -291,146 +519,156 @@ export default function ProductsList() {
           boxShadow: "0 2px 16px rgba(0,151,178,0.08)",
         }}
       >
-        <Table>
-          <TableHead>
-            <TableRow
-              sx={{
-                background: GRADIENT,
-              }}
-            >
-              {[
-                "Product Title",
-                "Brand",
-                "Variants",
-                "Status",
-                "Created",
-                "Actions",
-              ].map((h, i) => (
-                <TableCell
-                  key={h}
-                  align={h === "Actions" ? "right" : "left"}
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ background: GRADIENT }}>
+                {[
+                  "Product Title",
+                  "Brand",
+                  "Variants",
+                  "Status",
+                  "Created",
+                  "Actions",
+                ].map((h) => (
+                  <TableCell
+                    key={h}
+                    align={h === "Actions" ? "right" : "left"}
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "0.78rem",
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                      color: "#ffffff !important",
+                      borderBottom: "none",
+                      py: 1.8,
+                    }}
+                  >
+                    {h}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {paginatedProducts.map((product, idx) => (
+                <TableRow
+                  key={product.id}
                   sx={{
-                    fontWeight: 700,
-                    fontSize: "0.78rem",
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
-                    color: "#ffffff !important",
-                    borderBottom: "none",
-                    py: 1.8,
+                    bgcolor: idx % 2 === 0 ? "#ffffff" : "#f8fdfe",
+                    "&:hover": { bgcolor: "#edf8fb" },
+                    transition: "background 0.15s ease",
+                    // Remove bottom border on last row so pagination bar sits flush
+                    "&:last-child td": { borderBottom: "none" },
                   }}
                 >
-                  {h}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {productData?.data?.products?.map((product, idx) => (
-              <TableRow
-                key={product.id}
-                sx={{
-                  bgcolor: idx % 2 === 0 ? "#ffffff" : "#f8fdfe",
-                  "&:hover": { bgcolor: "#edf8fb" },
-                  transition: "background 0.15s ease",
-                }}
-              >
-                <TableCell
-                  sx={{ fontWeight: 600, color: "#000", fontSize: "0.9rem" }}
-                >
-                  {product.title}
-                </TableCell>
-                <TableCell sx={{ color: "#333", fontSize: "0.875rem" }}>
-                  {product.brand}
-                </TableCell>
-                <TableCell>
-                  <Box
-                    sx={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: "rgba(0,151,178,0.1)",
-                      color: "#0097b2",
-                      fontWeight: 700,
-                      fontSize: "0.8rem",
-                      borderRadius: "20px",
-                      px: 1.5,
-                      py: 0.3,
-                      minWidth: 28,
-                    }}
+                  <TableCell
+                    sx={{ fontWeight: 600, color: "#000", fontSize: "0.9rem" }}
                   >
-                    {product.variants?.length || 0}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={product.status === "draft" ? "Draft" : "Submitted"}
-                    size="small"
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: "0.75rem",
-                      ...(product.status === "draft"
-                        ? {
-                            bgcolor: "rgba(255,160,0,0.1)",
-                            color: "#e65100",
-                            border: "1px solid rgba(230,81,0,0.3)",
-                          }
-                        : {
-                            bgcolor: "rgba(0,151,178,0.1)",
-                            color: "#0097b2",
-                            border: "1px solid rgba(0,151,178,0.3)",
-                          }),
-                    }}
-                    variant="outlined"
-                  />
-                </TableCell>
-                <TableCell sx={{ color: "#555", fontSize: "0.85rem" }}>
-                  {new Date(product.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell align="right">
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{ justifyContent: "flex-end" }}
-                  >
-                    <Link
-                      to={`/edit-product/${product?.product_id}`}
-                      style={{ textDecoration: "none" }}
+                    {product.title}
+                  </TableCell>
+                  <TableCell sx={{ color: "#333", fontSize: "0.875rem" }}>
+                    {product.brand}
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "rgba(0,151,178,0.1)",
+                        color: "#0097b2",
+                        fontWeight: 700,
+                        fontSize: "0.8rem",
+                        borderRadius: "20px",
+                        px: 1.5,
+                        py: 0.3,
+                        minWidth: 28,
+                      }}
                     >
+                      {product.variants?.length || 0}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={product.status === "draft" ? "Draft" : "Submitted"}
+                      size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: "0.75rem",
+                        ...(product.status === "draft"
+                          ? {
+                              bgcolor: "rgba(255,160,0,0.1)",
+                              color: "#e65100",
+                              border: "1px solid rgba(230,81,0,0.3)",
+                            }
+                          : {
+                              bgcolor: "rgba(0,151,178,0.1)",
+                              color: "#0097b2",
+                              border: "1px solid rgba(0,151,178,0.3)",
+                            }),
+                      }}
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell sx={{ color: "#555", fontSize: "0.85rem" }}>
+                    {new Date(product.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell align="right">
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{ justifyContent: "flex-end" }}
+                    >
+                      <Link
+                        to={`/edit-product/${product?.product_id}`}
+                        style={{ textDecoration: "none" }}
+                      >
+                        <GradientButton
+                          size="small"
+                          secondary
+                          startIcon={(color) => (
+                            <Edit size={13} color={color} />
+                          )}
+                        />
+                      </Link>
                       <GradientButton
                         size="small"
                         secondary
-                        startIcon={(color) => <Edit size={13} color={color} />}
-                      >
-                        {/* Edit */}
-                      </GradientButton>
-                    </Link>
-                    <GradientButton
-                      size="small"
-                      secondary
-                      startIcon={(color) => <Copy size={13} color={color} />}
-                      onClick={() => handleClone(product)}
-                    >
-                      {/* Clone */}
-                    </GradientButton>
-                    <GradientButton
-                      size="small"
-                      danger
-                      startIcon={(color) => <Trash2 size={13} color={color} />}
-                      onClick={() => {
-                        setSelectedProduct(product.id);
-                        setOpenDialog(true);
-                      }}
-                    >
-                      {/* Delete */}
-                    </GradientButton>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                        startIcon={(color) => <Copy size={13} color={color} />}
+                        onClick={() => handleClone(product)}
+                      />
+                      <GradientButton
+                        size="small"
+                        danger
+                        startIcon={(color) => (
+                          <Trash2 size={13} color={color} />
+                        )}
+                        onClick={() => {
+                          setSelectedProduct(product.id);
+                          setOpenDialog(true);
+                        }}
+                      />
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* ── Pagination Bar ── */}
+        <TablePagination
+          total={total}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={setPage}
+          onRowsPerPageChange={(val) => {
+            setRowsPerPage(val);
+            setPage(1);
+          }}
+        />
+      </Paper>
 
       {/* Delete Confirmation Dialog */}
       <Dialog

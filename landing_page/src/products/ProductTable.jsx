@@ -1,18 +1,23 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import {
-  Button,
+  Box,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
   CircularProgress,
+  Select,
+  MenuItem,
+  Typography,
 } from "@mui/material";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const GRADIENT = "linear-gradient(135deg, #0097b2 0%, #7ed957 100%)";
 const GRADIENT_HOVER = "linear-gradient(135deg, #007a91 0%, #65c040 100%)";
+const ROWS_PER_PAGE_OPTIONS = [5, 10, 20, 50];
 
 function GradientButton({
   children,
@@ -61,6 +66,304 @@ function GradientButton({
   );
 }
 
+// ── No Rows Overlay ───────────────────────────────────────────────────────────
+function NoRowsOverlay() {
+  return (
+    <Box
+      sx={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 1.5,
+        pointerEvents: "none",
+      }}
+    >
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#c8e8ef"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="3" />
+        <line x1="8" y1="9" x2="16" y2="9" />
+        <line x1="8" y1="13" x2="13" y2="13" />
+      </svg>
+      <Box sx={{ fontSize: "0.85rem", fontWeight: 600, color: "#b0cdd4" }}>
+        No rows to display
+      </Box>
+    </Box>
+  );
+}
+
+// ── Custom Pagination Bar ─────────────────────────────────────────────────────
+function TablePagination({
+  total,
+  page,
+  rowsPerPage,
+  onPageChange,
+  onRowsPerPageChange,
+}) {
+  const totalPages = Math.ceil(total / rowsPerPage);
+  const from = total === 0 ? 0 : (page - 1) * rowsPerPage + 1;
+  const to = Math.min(page * rowsPerPage, total);
+
+  function getPageNumbers() {
+    if (totalPages <= 5)
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (page <= 3) return [1, 2, 3, 4, 5];
+    if (page >= totalPages - 2)
+      return [
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    return [page - 2, page - 1, page, page + 1, page + 2];
+  }
+
+  const pages = getPageNumbers();
+  const showLeftEllipsis = totalPages > 5 && pages[0] > 1;
+  const showRightEllipsis =
+    totalPages > 5 && pages[pages.length - 1] < totalPages;
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        px: 2.5,
+        py: 1.8,
+        borderTop: "1.5px solid #e0f4f7",
+        background: "#f8fdfe",
+        flexWrap: "wrap",
+        gap: 1.5,
+      }}
+    >
+      {/* Left: count + rows-per-page */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography
+          sx={{ fontSize: "0.82rem", color: "#555", fontWeight: 500 }}
+        >
+          Showing{" "}
+          <strong style={{ color: "#000" }}>
+            {from}–{to}
+          </strong>{" "}
+          of <strong style={{ color: "#000" }}>{total}</strong> results
+        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography
+            sx={{ fontSize: "0.78rem", color: "#888", whiteSpace: "nowrap" }}
+          >
+            Rows per page:
+          </Typography>
+          <Select
+            value={rowsPerPage}
+            onChange={(e) => {
+              onRowsPerPageChange(Number(e.target.value));
+              onPageChange(1);
+            }}
+            size="small"
+            variant="outlined"
+            sx={{
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              color: "#000",
+              height: 30,
+              "& fieldset": { borderColor: "#d0eef3", borderRadius: "8px" },
+              "&:hover fieldset": { borderColor: "#0097b2" },
+              "&.Mui-focused fieldset": { borderColor: "#0097b2" },
+              "& .MuiSelect-select": {
+                py: "4px",
+                pl: "10px",
+                pr: "28px !important",
+              },
+              "& .MuiSelect-icon": { color: "#0097b2" },
+            }}
+          >
+            {ROWS_PER_PAGE_OPTIONS.map((opt) => (
+              <MenuItem key={opt} value={opt} sx={{ fontSize: "0.82rem" }}>
+                {opt}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+      </Box>
+
+      {/* Right: page nav */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <PaginationBtn
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 1}
+          icon={<ChevronLeft size={15} />}
+        />
+
+        {showLeftEllipsis && (
+          <>
+            <PaginationBtn
+              label={1}
+              active={false}
+              onClick={() => onPageChange(1)}
+            />
+            <Ellipsis />
+          </>
+        )}
+
+        {pages.map((p) => (
+          <PaginationBtn
+            key={p}
+            label={p}
+            active={p === page}
+            onClick={() => onPageChange(p)}
+          />
+        ))}
+
+        {showRightEllipsis && (
+          <>
+            <Ellipsis />
+            <PaginationBtn
+              label={totalPages}
+              active={false}
+              onClick={() => onPageChange(totalPages)}
+            />
+          </>
+        )}
+
+        <PaginationBtn
+          onClick={() => onPageChange(page + 1)}
+          disabled={page === totalPages || totalPages === 0}
+          icon={<ChevronRight size={15} />}
+        />
+      </Box>
+    </Box>
+  );
+}
+
+function PaginationBtn({ label, active, onClick, disabled, icon }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={disabled ? undefined : onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        minWidth: 32,
+        height: 32,
+        borderRadius: "8px",
+        border: active ? "none" : "1.5px solid #d0eef3",
+        background: active
+          ? GRADIENT
+          : hovered && !disabled
+            ? "rgba(0,151,178,0.08)"
+            : "#fff",
+        color: active
+          ? "#fff"
+          : disabled
+            ? "#bbb"
+            : hovered
+              ? "#0097b2"
+              : "#444",
+        fontSize: "0.82rem",
+        fontWeight: active ? 700 : 500,
+        cursor: disabled ? "not-allowed" : "pointer",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "all 0.18s ease",
+        boxShadow: active ? "0 2px 8px rgba(0,151,178,0.25)" : "none",
+        padding: "0 6px",
+      }}
+    >
+      {icon || label}
+    </button>
+  );
+}
+
+function Ellipsis() {
+  return (
+    <Box
+      sx={{
+        width: 28,
+        textAlign: "center",
+        fontSize: "0.85rem",
+        color: "#aaa",
+        userSelect: "none",
+      }}
+    >
+      …
+    </Box>
+  );
+}
+
+// ── DataGrid sx ───────────────────────────────────────────────────────────────
+const dataGridSx = {
+  border: 0,
+  fontFamily: "inherit",
+  fontSize: "0.875rem",
+  "& .MuiDataGrid-columnHeaders": {
+    background: GRADIENT,
+    borderBottom: "none",
+  },
+  "& .MuiDataGrid-columnHeader": { background: "transparent" },
+  "& .MuiDataGrid-columnHeaderTitle": {
+    color: "#ffffff !important",
+    fontWeight: 700,
+    fontSize: "0.82rem",
+    letterSpacing: "0.03em",
+    textTransform: "uppercase",
+  },
+  "& .MuiDataGrid-columnHeader .MuiDataGrid-iconButtonContainer svg": {
+    color: "#fff",
+  },
+  "& .MuiDataGrid-columnSeparator svg": { color: "rgba(255,255,255,0.3)" },
+  "& .MuiDataGrid-columnHeaderCheckbox .MuiCheckbox-root": { color: "#fff" },
+  "& .MuiDataGrid-row": {
+    color: "#000000",
+    transition: "background 0.15s ease",
+  },
+  "& .MuiDataGrid-row:hover": { background: "#f0fafc", color: "#000000" },
+  "& .MuiDataGrid-row.Mui-selected": {
+    background: "rgba(0,151,178,0.07)",
+    color: "#000000",
+    "&:hover": { background: "rgba(0,151,178,0.12)" },
+  },
+  "& .MuiDataGrid-cell": {
+    color: "#000000",
+    borderColor: "#e8f6f9",
+    fontSize: "0.875rem",
+    display: "flex",
+    alignItems: "center",
+  },
+  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+    outline: "none",
+  },
+  "& .MuiDataGrid-cellCheckbox .MuiCheckbox-root": { color: "#b0b0b0" },
+  "& .MuiCheckbox-root.Mui-checked": { color: "#0097b2" },
+  // Hide the built-in footer — we render our own pagination bar
+  "& .MuiDataGrid-footerContainer": { display: "none" },
+  // Overlay fix
+  "& .MuiDataGrid-overlayWrapper": {
+    height: "100% !important",
+    position: "relative",
+  },
+  "& .MuiDataGrid-overlayWrapperInner": {
+    height: "100% !important",
+    position: "relative",
+  },
+};
+
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function ProductTable({
   data,
   isLoading,
@@ -70,8 +373,10 @@ export default function ProductTable({
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [stock, setStock] = useState("");
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const rows = useMemo(() => {
+  const allRows = useMemo(() => {
     if (!data?.data?.products) return [];
     return data.data.products.flatMap((item) =>
       item.variants.map((variant) => ({
@@ -88,6 +393,14 @@ export default function ProductTable({
       })),
     );
   }, [data?.data?.products]);
+
+  const total = allRows.length;
+
+  // Slice rows for current page
+  const paginatedRows = useMemo(
+    () => allRows.slice((page - 1) * rowsPerPage, page * rowsPerPage),
+    [allRows, page, rowsPerPage],
+  );
 
   const handleSave = async () => {
     let action = "";
@@ -131,8 +444,8 @@ export default function ProductTable({
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <div
-          style={{
+        <Box
+          sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -143,15 +456,16 @@ export default function ProductTable({
           <GradientButton size="small" onClick={() => handleEdit(params.row)}>
             Edit
           </GradientButton>
-        </div>
+        </Box>
       ),
     },
   ];
 
-  if (isLoading)
+  // ── Loading ─────────────────────────────────────────────────────────────────
+  if (isLoading) {
     return (
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -164,13 +478,15 @@ export default function ProductTable({
         <span style={{ color: "#0097b2", fontSize: "0.9rem", fontWeight: 500 }}>
           Loading products…
         </span>
-      </div>
+      </Box>
     );
+  }
 
-  if (error)
+  // ── Error ───────────────────────────────────────────────────────────────────
+  if (error) {
     return (
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -181,9 +497,11 @@ export default function ProductTable({
         }}
       >
         ⚠️ Error loading products
-      </div>
+      </Box>
     );
+  }
 
+  // ── Table ───────────────────────────────────────────────────────────────────
   return (
     <>
       <Paper
@@ -194,95 +512,35 @@ export default function ProductTable({
           borderRadius: "16px",
           border: "1.5px solid #e0f4f7",
           boxShadow: "0 2px 16px rgba(0,151,178,0.08)",
+          // Fixed height when empty so overlay is visible
+          height: total === 0 ? 280 : "auto",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <DataGrid
-          rows={rows}
+          rows={paginatedRows}
           columns={columns}
-          pageSizeOptions={[5, 10]}
+          // Disable built-in pagination — we manage it ourselves
+          hideFooterPagination
+          hideFooter
           checkboxSelection
           disableRowSelectionOnClick
-          autoHeight
-          sx={{
-            border: 0,
-            fontFamily: "inherit",
-            fontSize: "0.875rem",
+          // Only autoHeight when rows exist
+          autoHeight={total > 0}
+          slots={{ noRowsOverlay: NoRowsOverlay }}
+          sx={{ ...dataGridSx, flex: 1 }}
+        />
 
-            // ── Header ────────────────────────────────────────────────────
-            "& .MuiDataGrid-columnHeaders": {
-              background: GRADIENT,
-              borderBottom: "none",
-            },
-            "& .MuiDataGrid-columnHeader": {
-              background: "transparent",
-            },
-            "& .MuiDataGrid-columnHeaderTitle": {
-              color: "#ffffff !important",
-              fontWeight: 700,
-              fontSize: "0.82rem",
-              letterSpacing: "0.03em",
-              textTransform: "uppercase",
-            },
-            "& .MuiDataGrid-columnHeader .MuiDataGrid-iconButtonContainer svg":
-              {
-                color: "#fff",
-              },
-            "& .MuiDataGrid-columnSeparator svg": {
-              color: "rgba(255,255,255,0.3)",
-            },
-            "& .MuiDataGrid-columnHeaderCheckbox .MuiCheckbox-root": {
-              color: "#fff",
-            },
-
-            // ── Rows & Cells ──────────────────────────────────────────────
-            "& .MuiDataGrid-row": {
-              color: "#000000",
-              transition: "background 0.15s ease",
-            },
-            "& .MuiDataGrid-row:hover": {
-              background: "#f0fafc",
-              color: "#000000",
-            },
-            "& .MuiDataGrid-row.Mui-selected": {
-              background: "rgba(0,151,178,0.07)",
-              color: "#000000",
-              "&:hover": { background: "rgba(0,151,178,0.12)" },
-            },
-            "& .MuiDataGrid-cell": {
-              color: "#000000",
-              borderColor: "#e8f6f9",
-              fontSize: "0.875rem",
-              display: "flex",
-              alignItems: "center",
-            },
-            "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-              outline: "none",
-            },
-
-            // ── Checkbox ──────────────────────────────────────────────────
-            "& .MuiDataGrid-cellCheckbox .MuiCheckbox-root": {
-              color: "#b0b0b0",
-            },
-            "& .MuiCheckbox-root.Mui-checked": {
-              color: "#0097b2",
-            },
-
-            // ── Footer / Pagination ───────────────────────────────────────
-            "& .MuiDataGrid-footerContainer": {
-              borderTop: "1.5px solid #e0f4f7",
-              background: "#f8fdfe",
-              color: "#000000",
-            },
-            "& .MuiTablePagination-root, & .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel":
-              {
-                color: "#000000",
-              },
-            "& .MuiTablePagination-selectIcon": {
-              color: "#0097b2",
-            },
-            "& .MuiDataGrid-footerContainer .MuiIconButton-root": {
-              color: "#0097b2",
-            },
+        {/* Custom pagination bar — always rendered, even when empty */}
+        <TablePagination
+          total={total}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={setPage}
+          onRowsPerPageChange={(val) => {
+            setRowsPerPage(val);
+            setPage(1);
           }}
         />
       </Paper>
@@ -315,8 +573,8 @@ export default function ProductTable({
         </DialogTitle>
 
         <DialogContent sx={{ pt: 3, pb: 1, px: 3 }}>
-          <div
-            style={{
+          <Box
+            sx={{
               background: "#f0fafc",
               border: "1.5px solid #d0eef3",
               borderRadius: "10px",
@@ -342,7 +600,7 @@ export default function ProductTable({
             >
               {selectedRow?.skuId || "—"}
             </span>
-          </div>
+          </Box>
 
           <TextField
             label="Stock"

@@ -19,6 +19,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { Plus, Trash2, Upload, ChevronDown } from "lucide-react";
+import { toast } from "react-toastify";
 import {
   addProduct,
   updateProduct,
@@ -114,7 +115,7 @@ const fieldSx = {
 export default function AddProductForm({ initialProduct, onSuccess }) {
   const params = useParams();
   const productId = params.product_id;
-  const navigate = useNavigate(); // ← add this
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
@@ -230,17 +231,18 @@ export default function AddProductForm({ initialProduct, onSuccess }) {
     };
     try {
       await addProduct(payload);
+      toast.success("Product saved as draft successfully");
     } catch (err) {
       console.log(err);
+      toast.error("Failed to save draft");
     }
-    alert("Product saved as draft successfully!");
     onSuccess?.();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.variants.length === 0) {
-      alert("Please add at least one variant");
+      toast.error("Please add at least one variant");
       return;
     }
     const payload = {
@@ -261,10 +263,16 @@ export default function AddProductForm({ initialProduct, onSuccess }) {
     try {
       if (productId) await updateProduct(productId, productData);
       else await addProduct(productData);
+      toast.success(
+        productId
+          ? "Product updated successfully"
+          : "Product submitted successfully",
+      );
     } catch (err) {
       console.log(err);
+      toast.error("Failed to submit product");
+      return;
     }
-    alert("Product submitted successfully!");
     setFormData({
       title: "",
       description: "",
@@ -275,7 +283,7 @@ export default function AddProductForm({ initialProduct, onSuccess }) {
       variants: [],
     });
     onSuccess?.();
-    navigate("/products"); // ← add this line
+    navigate("/products");
   };
 
   if (isLoading) {
@@ -375,7 +383,6 @@ export default function AddProductForm({ initialProduct, onSuccess }) {
                         gap: "8px",
                       }}
                     >
-                      {/* Step circle */}
                       <span
                         style={{
                           width: 22,
@@ -660,7 +667,6 @@ export default function AddProductForm({ initialProduct, onSuccess }) {
                                 gap: 2,
                               }}
                             >
-                              {/* Gradient number badge */}
                               <Box
                                 sx={{
                                   width: 30,

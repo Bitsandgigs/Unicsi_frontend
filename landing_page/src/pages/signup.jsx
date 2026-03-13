@@ -16,23 +16,21 @@ const Signup = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
-  // Handle form field changes
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Validate email format using regex
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // STEP 1️⃣: Send OTP to user’s email
+  // STEP 1: Send OTP
   const handleSendOtp = async () => {
     if (!isValidEmail(form.email)) {
       return setMessage("Please enter a valid email address");
     }
-
     try {
       setLoading(true);
       const res = await api.post("/auth/send-otp", { email: form.email });
@@ -45,12 +43,11 @@ const Signup = () => {
     }
   };
 
-  // STEP 2️⃣: Verify the entered OTP
+  // STEP 2: Verify OTP
   const handleVerifyOtp = async () => {
     if (!form.otp) {
       return setMessage("Please enter OTP");
     }
-
     try {
       setLoading(true);
       const res = await api.post("/auth/verify-otp", {
@@ -66,19 +63,17 @@ const Signup = () => {
     }
   };
 
-  // STEP 3️⃣: Complete signup (only after OTP verified)
+  // STEP 3: Complete signup
   const handleSignup = async (e) => {
     e.preventDefault();
-
     if (!otpVerified) {
       return setMessage("Please verify your email before signing up");
     }
-
     try {
       setLoading(true);
       const res = await api.post("/auth/signup", {
         ...form,
-        otpVerified: true, // ✅ send verified flag
+        otpVerified: true,
       });
       setMessage(res.data.message);
       navigate("/login");
@@ -90,132 +85,433 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleSignup}
-        className="bg-white shadow-lg p-8 rounded-xl w-3/5"
-      >
-        <h2 className="text-2xl font-bold text-center mb-4">Create Account</h2>
-        <p className="text-center text-gray-500 mb-6">
-          Verify your email before completing signup
-        </p>
+    <>
+      <style>{`
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        {/* Name */}
-        <InputField
-          label="Full Name"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-          placeholder="Enter your name"
-        />
+        .login-bg {
+          width: 100vw;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #7ed957 0%, #0097b2 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+          font-family: 'Segoe UI', sans-serif;
+        }
 
-        {/* Email */}
-        <div className="flex items-center gap-2">
-          <div className="flex-1">
-            <InputField
-              label="Email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              type="email"
-            />
+        .login-card {
+          background: #fff;
+          border-radius: 20px;
+          padding: 48px 44px 40px;
+          width: 100%;
+          max-width: 500px;
+          position: relative;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .close-btn {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #aaa;
+          font-size: 22px;
+          line-height: 1;
+          padding: 4px;
+          transition: color 0.2s;
+        }
+        .close-btn:hover { color: #555; }
+
+        .login-title {
+          font-size: 28px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 6px;
+        }
+
+        .signup-row {
+          display: flex;
+          align-items: center;
+          margin-bottom: 28px;
+        }
+
+        .signup-text {
+          font-size: 14px;
+          color: #555;
+          margin: 0;
+        }
+
+        .signup-link {
+          color: #7ed957;
+          font-weight: 600;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        .signup-link:hover { text-decoration: underline; }
+
+        .field-group {
+          margin-bottom: 18px;
+        }
+
+        .field-wrapper {
+          position: relative;
+        }
+
+        .field-input {
+          width: 100%;
+          border: none;
+          border-bottom: 1.5px solid #d0d0d0;
+          padding: 10px 0;
+          font-size: 15px;
+          color: #1a1a1a;
+          background: transparent;
+          outline: none;
+          transition: border-color 0.2s;
+          box-sizing: border-box;
+        }
+        .field-input::placeholder { color: #bbb; }
+        .field-input:focus { border-bottom-color: #7ed957; }
+
+        .field-select {
+          width: 100%;
+          border: none;
+          border-bottom: 1.5px solid #d0d0d0;
+          padding: 10px 0;
+          font-size: 15px;
+          color: #1a1a1a;
+          background: transparent;
+          outline: none;
+          transition: border-color 0.2s;
+          box-sizing: border-box;
+          appearance: none;
+          cursor: pointer;
+        }
+        .field-select:focus { border-bottom-color: #7ed957; }
+
+        .toggle-pw {
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #aaa;
+          padding: 0;
+          display: flex;
+          align-items: center;
+        }
+
+        /* Email + OTP row */
+        .email-row {
+          display: flex;
+          align-items: flex-end;
+          gap: 10px;
+          margin-bottom: 18px;
+        }
+        .email-row .field-group {
+          flex: 1;
+          margin-bottom: 0;
+        }
+
+        .otp-btn {
+          padding: 9px 16px;
+          border: none;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: opacity 0.2s, transform 0.15s;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .otp-btn:hover:not(:disabled) {
+          opacity: 0.88;
+          transform: translateY(-1px);
+        }
+        .otp-btn:disabled { cursor: not-allowed; opacity: 0.75; }
+
+        .otp-btn.send {
+          background: linear-gradient(135deg, #7ed957 0%, #0097b2 100%);
+          color: #fff;
+        }
+        .otp-btn.sent {
+          background: #22c55e;
+          color: #fff;
+        }
+        .otp-btn.verify {
+          background: #0097b2;
+          color: #fff;
+        }
+        .otp-btn.verified {
+          background: #22c55e;
+          color: #fff;
+        }
+
+        .signin-btn {
+          width: 100%;
+          padding: 15px;
+          background: linear-gradient(135deg, #7ed957 0%, #0097b2 100%);
+          color: #fff;
+          font-size: 16px;
+          font-weight: 700;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          margin-top: 10px;
+          margin-bottom: 20px;
+          transition: opacity 0.2s, transform 0.15s;
+          letter-spacing: 0.3px;
+        }
+        .signin-btn:hover:not(:disabled) {
+          opacity: 0.92;
+          transform: translateY(-1px);
+        }
+        .signin-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          background: #ccc;
+        }
+
+        .bottom-row {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .login-text {
+          font-size: 14px;
+          color: #555;
+          margin: 0;
+        }
+
+        .error-msg {
+          text-align: center;
+          font-size: 13px;
+          color: #e53e3e;
+          margin-top: -10px;
+          margin-bottom: 12px;
+        }
+
+        .success-msg {
+          text-align: center;
+          font-size: 13px;
+          color: #22c55e;
+          margin-top: -10px;
+          margin-bottom: 12px;
+        }
+
+        .verified-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 12px;
+          color: #22c55e;
+          font-weight: 600;
+          margin-top: 4px;
+        }
+      `}</style>
+
+      <div className="login-bg">
+        <div className="login-card">
+          {/* Close button */}
+          <button
+            className="close-btn"
+            type="button"
+            aria-label="Close"
+            onClick={() => navigate("/")}
+          >
+            ✕
+          </button>
+
+          {/* Title */}
+          <h1 className="login-title">Sign up</h1>
+
+          {/* Subtitle row */}
+          <div className="signup-row">
+            <p className="signup-text">
+              Already have an account?{" "}
+              <span className="signup-link" onClick={() => navigate("/login")}>
+                Sign in here
+              </span>
+            </p>
           </div>
 
-          {/* Send OTP Button */}
-          <button
-            type="button"
-            onClick={handleSendOtp}
-            disabled={loading || otpSent}
-            className={`px-3 py-3 mt-2.5 rounded-md text-sm font-semibold ${otpSent
-              ? "bg-green-600 text-white cursor-not-allowed"
-              : "bg-[#943A09] text-white hover:bg-amber-800"
-              }`}
-          >
-            {otpSent ? "Sent" : loading ? "Sending..." : "Send OTP"}
-          </button>
-        </div>
-
-        {/* OTP Field (visible only if OTP is sent) */}
-        {otpSent && (
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex-1">
-              <InputField
-                label="Enter OTP"
-                name="otp"
-                value={form.otp}
-                onChange={handleChange}
-                placeholder="Enter the OTP"
-              />
+          {/* Form */}
+          <form onSubmit={handleSignup}>
+            {/* Full Name */}
+            <div className="field-group">
+              <div className="field-wrapper">
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Full Name"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="field-input"
+                  required
+                />
+              </div>
             </div>
 
-            {/* Verify OTP Button */}
+            {/* Email + Send OTP */}
+            <div className="email-row">
+              <div className="field-group">
+                <div className="field-wrapper">
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    value={form.email}
+                    onChange={handleChange}
+                    className="field-input"
+                    required
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={loading || otpSent}
+                className={`otp-btn ${otpSent ? "sent" : "send"}`}
+              >
+                {otpSent ? "✓ Sent" : loading ? "Sending..." : "Send OTP"}
+              </button>
+            </div>
+
+            {/* OTP Field */}
+            {otpSent && (
+              <div className="email-row">
+                <div className="field-group">
+                  <div className="field-wrapper">
+                    <input
+                      type="text"
+                      name="otp"
+                      placeholder="Enter OTP"
+                      value={form.otp}
+                      onChange={handleChange}
+                      className="field-input"
+                    />
+                  </div>
+                  {otpVerified && (
+                    <span className="verified-badge">✓ Email verified</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  disabled={loading || otpVerified}
+                  className={`otp-btn ${otpVerified ? "verified" : "verify"}`}
+                >
+                  {otpVerified
+                    ? "✓ Verified"
+                    : loading
+                      ? "Verifying..."
+                      : "Verify"}
+                </button>
+              </div>
+            )}
+
+            {/* Password */}
+            <div className="field-group">
+              <div className="field-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="field-input"
+                  style={{ paddingRight: "32px" }}
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-pw"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#aaa"
+                      strokeWidth="2"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#aaa"
+                      strokeWidth="2"
+                    >
+                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Role */}
+            <div className="field-group">
+              <div className="field-wrapper">
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleChange}
+                  className="field-select"
+                >
+                  <option value="SUPPLIER">Supplier</option>
+                  <option value="RESELLER">Reseller</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Message */}
+            {message && (
+              <p className={otpVerified ? "success-msg" : "error-msg"}>
+                {message}
+              </p>
+            )}
+
+            {/* Sign up button */}
             <button
-              type="button"
-              onClick={handleVerifyOtp}
-              disabled={loading || otpVerified}
-              className={`px-3 py-3 mt-2.5 rounded-md text-sm font-semibold ${otpVerified
-                ? "bg-green-600 text-white cursor-not-allowed"
-                : "bg-blue-700 text-white hover:bg-blue-800"
-                }`}
+              type="submit"
+              disabled={!otpVerified || loading}
+              className="signin-btn"
             >
-              {otpVerified ? "Verified" : loading ? "Verifying..." : "Verify"}
+              {loading ? "Creating account..." : "Sign up"}
             </button>
-          </div>
-        )}
 
-        {/* Password */}
-        <InputField
-          label="Password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          type="password"
-          placeholder="Enter password"
-        />
-
-        {/* Role */}
-        <div className="mb-4">
-          <label className="text-sm font-medium mb-1 block">Role</label>
-          <select
-            name="role"
-            value={form.role}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2"
-          >
-            <option value="SUPPLIER">Supplier</option>
-            <option value="RESELLER">Reseller</option>
-            <option value="ADMIN">Admin</option>
-          </select>
+            {/* Bottom row */}
+            <div className="bottom-row">
+              <p className="login-text">
+                Already have an account?{" "}
+                <span
+                  className="signup-link"
+                  onClick={() => navigate("/login")}
+                >
+                  Sign in
+                </span>
+              </p>
+            </div>
+          </form>
         </div>
-
-        {/* Signup Button */}
-        <button
-          type="submit"
-          disabled={!otpVerified || loading}
-          className={`w-full py-2 rounded-lg font-medium ${otpVerified
-            ? "bg-[#943A09] text-white hover:bg-amber-800"
-            : "bg-gray-400 text-white cursor-not-allowed"
-            }`}
-        >
-          {loading ? "Processing..." : "Sign Up"}
-        </button>
-
-        {message && (
-          <p className="text-center text-sm mt-3 text-red-600">{message}</p>
-        )}
-
-        <p className="text-center mt-4 text-sm">
-          Already have an account?{" "}
-          <span
-            onClick={() => navigate("/login")}
-            className="text-[#943A09] cursor-pointer font-semibold"
-          >
-            Login
-          </span>
-        </p>
-      </form>
-    </div>
+      </div>
+    </>
   );
 };
 

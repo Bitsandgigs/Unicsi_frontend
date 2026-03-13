@@ -16,216 +16,8 @@ const GRADIENT = "linear-gradient(135deg, #0097b2 0%, #7ed957 100%)";
 const GRADIENT_HOVER = "linear-gradient(135deg, #007a91 0%, #65c040 100%)";
 
 // ── Sample Data ───────────────────────────────────────────────────────────────
-const PAST_PAYMENTS = [
-  {
-    id: 1,
-    date: "06 Mar 2026",
-    cycle: "Weekly",
-    cms: [
-      { id: "CITIN26632921420", amount: "₹16,358.68" },
-      { id: "CITIN26632928913", amount: "₹1,442.09" },
-    ],
-    hasSheet: true,
-    hasInvoice: false,
-  },
-  {
-    id: 2,
-    date: "28 Feb 2026",
-    cycle: "Monthly",
-    cms: [
-      { id: "-", amount: "₹0" },
-      { id: "-", amount: "₹0" },
-    ],
-    hasSheet: false,
-    hasInvoice: true,
-  },
-  {
-    id: 3,
-    date: "27 Feb 2026",
-    cycle: "Weekly",
-    cms: [
-      { id: "CITIN26629616143", amount: "₹21,618.28" },
-      { id: "CITIN26629618924", amount: "₹1,468.56" },
-    ],
-    hasSheet: true,
-    hasInvoice: false,
-  },
-  {
-    id: 4,
-    date: "20 Feb 2026",
-    cycle: "Weekly",
-    cms: [
-      { id: "CITIN26621034521", amount: "₹9,240.00" },
-      { id: "CITIN26621038812", amount: "₹820.50" },
-    ],
-    hasSheet: true,
-    hasInvoice: true,
-  },
-  {
-    id: 5,
-    date: "13 Feb 2026",
-    cycle: "Monthly",
-    cms: [
-      { id: "CITIN26614200111", amount: "₹32,115.40" },
-      { id: "-", amount: "₹0" },
-    ],
-    hasSheet: false,
-    hasInvoice: true,
-  },
-];
-
-const UPCOMING_PAYMENTS = [
-  {
-    id: 1,
-    image: null,
-    product: "Reading Glasses",
-    qty: 1,
-    variant: "1",
-    sku: "FDDAILYGLASSESPOWER-+1.00",
-    orderId: "6131845714",
-    orderDate: "16 Feb 2026",
-    price: "₹73",
-    partner: "Ekart surface new",
-    trackingId: "CIQC0025000713",
-    status: "Delivered",
-    deliveredOn: "03 Mar 2026",
-  },
-  {
-    id: 2,
-    image: null,
-    product: "Disposable Nitrile Non-Slip Anti-Scratch Gloves",
-    qty: 1,
-    variant: "Free Size",
-    sku: "Disposable Nitrile Gloves - Pack of 50",
-    orderId: "5713000791",
-    orderDate: "19 Feb 2026",
-    price: "₹198",
-    partner: "Ekart Testing",
-    trackingId: "PFPC0025141816",
-    status: "Delivered",
-    deliveredOn: "28 Feb 2026",
-  },
-  {
-    id: 3,
-    image: null,
-    product: "Reading Glasses",
-    qty: 1,
-    variant: "1",
-    sku: "FDDAILYGLASSESPOWER-+1.00",
-    orderId: "6369184197",
-    orderDate: "20 Feb 2026",
-    price: "₹73",
-    partner: "Ekart Testing",
-    trackingId: "PFPC0025179132",
-    status: "Delivered",
-    deliveredOn: "28 Feb 2026",
-  },
-  {
-    id: 4,
-    image: null,
-    product: "Disposable Nitrile Non-Slip Anti-Scratch Gloves",
-    qty: 1,
-    variant: "Free Size",
-    sku: "Disposable Nitrile Gloves - Pack of 50",
-    orderId: "5384533983",
-    orderDate: "20 Feb 2026",
-    price: "₹198",
-    partner: "Delhivery",
-    trackingId: "280890192525674",
-    status: "Delivered",
-    deliveredOn: "06 Mar 2026",
-  },
-  {
-    id: 5,
-    image: null,
-    product: "Reading Glasses",
-    qty: 1,
-    variant: "1",
-    sku: "FDDAILYGLASSESPOWER-+1.00",
-    orderId: "7710758133",
-    orderDate: "21 Feb 2026",
-    price: "₹73",
-    partner: "Ekart Testing",
-    trackingId: "PFPC0025208647",
-    status: "Delivered",
-    deliveredOn: "28 Feb 2026",
-  },
-  {
-    id: 6,
-    image: null,
-    product: "Baby Bloom Pillow",
-    qty: 1,
-    variant: "Free Size",
-    sku: "Baby Shaping Head Support Pillow - Assorted Colour",
-    orderId: "5148949686",
-    orderDate: "21 Feb 2026",
-    price: "₹216",
-    partner: "Delhivery",
-    trackingId: "280890192674903",
-    status: "Delivered",
-    deliveredOn: "28 Feb 2026",
-  },
-  {
-    id: 7,
-    image: null,
-    product: "Reading Glasses",
-    qty: 1,
-    variant: "1",
-    sku: "FDDAILYGLASSESPOWER-+1.00",
-    orderId: "6850626364",
-    orderDate: "22 Feb 2026",
-    price: "₹73",
-    partner: "Ekart Testing",
-    trackingId: "PFPC0025259338",
-    status: "Delivered",
-    deliveredOn: "01 Mar 2026",
-  },
-  {
-    id: 8,
-    image: null,
-    product: "Yoga Mat Premium",
-    qty: 1,
-    variant: "Blue",
-    sku: "YOGAMAT-PREMIUM-BLU",
-    orderId: "8821045671",
-    orderDate: "23 Feb 2026",
-    price: "₹450",
-    partner: "Blue Dart",
-    trackingId: "BD0029187345",
-    status: "In Transit",
-    deliveredOn: "—",
-  },
-  {
-    id: 9,
-    image: null,
-    product: "Steel Water Bottle 1L",
-    qty: 2,
-    variant: "Silver",
-    sku: "SWB-1L-SILVER",
-    orderId: "9012834561",
-    orderDate: "24 Feb 2026",
-    price: "₹380",
-    partner: "Delhivery",
-    trackingId: "280891023456123",
-    status: "Delivered",
-    deliveredOn: "02 Mar 2026",
-  },
-  {
-    id: 10,
-    image: null,
-    product: "Bamboo Cutting Board",
-    qty: 1,
-    variant: "Large",
-    sku: "BCB-LARGE-001",
-    orderId: "7834512096",
-    orderDate: "25 Feb 2026",
-    price: "₹290",
-    partner: "Ekart Testing",
-    trackingId: "PFPC0025312890",
-    status: "Delivered",
-    deliveredOn: "03 Mar 2026",
-  },
-];
+const PAST_PAYMENTS = [];
+const UPCOMING_PAYMENTS = [];
 
 const QUICK_RANGES = [
   { label: "3 Days", days: 3 },
@@ -235,11 +27,6 @@ const QUICK_RANGES = [
   { label: "3 Months", days: 90 },
 ];
 
-function addDays(date, n) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + n);
-  return d;
-}
 function subDays(date, n) {
   const d = new Date(date);
   d.setDate(d.getDate() - n);
@@ -261,6 +48,45 @@ function sameDay(a, b) {
 function isBetween(d, from, to) {
   return from && to && d > from && d < to;
 }
+
+function NoRowsOverlay() {
+  return (
+    <Box
+      sx={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 1.5,
+        pointerEvents: "none",
+      }}
+    >
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#c8e8ef"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="3" />
+        <line x1="8" y1="9" x2="16" y2="9" />
+        <line x1="8" y1="13" x2="13" y2="13" />
+      </svg>
+      <Box sx={{ fontSize: "0.85rem", fontWeight: 600, color: "#b0cdd4" }}>
+        No rows to display
+      </Box>
+    </Box>
+  );
+}
+
 const MONTH_NAMES = [
   "January",
   "February",
@@ -277,6 +103,73 @@ const MONTH_NAMES = [
 ];
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+// ── Shared DataGrid sx ────────────────────────────────────────────────────────
+const dataGridSx = {
+  border: 0,
+  fontFamily: "inherit",
+  fontSize: "0.875rem",
+  "& .MuiDataGrid-columnHeaders": {
+    background: GRADIENT,
+    borderBottom: "none",
+  },
+  "& .MuiDataGrid-columnHeader": { background: "transparent" },
+  "& .MuiDataGrid-columnHeaderTitle": {
+    color: "#ffffff !important",
+    fontWeight: 700,
+    fontSize: "0.74rem",
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
+  },
+  "& .MuiDataGrid-columnHeader .MuiDataGrid-iconButtonContainer svg": {
+    color: "#fff",
+  },
+  "& .MuiDataGrid-columnSeparator svg": { color: "rgba(255,255,255,0.3)" },
+  "& .MuiDataGrid-columnHeaderCheckbox .MuiCheckbox-root": { color: "#fff" },
+  "& .MuiDataGrid-row": {
+    color: "#000000",
+    transition: "background 0.15s ease",
+  },
+  "& .MuiDataGrid-row:hover": { background: "#edf8fb", color: "#000000" },
+  "& .MuiDataGrid-row.Mui-selected": {
+    background: "rgba(0,151,178,0.07)",
+    color: "#000000",
+    "&:hover": { background: "rgba(0,151,178,0.12)" },
+  },
+  "& .MuiDataGrid-cell": {
+    color: "#000000",
+    borderColor: "#e8f6f9",
+    fontSize: "0.875rem",
+    display: "flex",
+    alignItems: "center",
+  },
+  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+    outline: "none",
+  },
+  "& .MuiDataGrid-cellCheckbox .MuiCheckbox-root": { color: "#b0b0b0" },
+  "& .MuiCheckbox-root.Mui-checked": { color: "#0097b2" },
+  "& .MuiDataGrid-footerContainer": {
+    borderTop: "1.5px solid #e0f4f7",
+    background: "#f8fdfe",
+    color: "#000000",
+  },
+  "& .MuiTablePagination-root, & .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel":
+    {
+      color: "#000000",
+    },
+  "& .MuiTablePagination-selectIcon": { color: "#0097b2" },
+  "& .MuiDataGrid-footerContainer .MuiIconButton-root": { color: "#0097b2" },
+  // ← KEY FIX: ensure overlay wrapper fills the reserved height
+  "& .MuiDataGrid-overlayWrapper": {
+    height: "100% !important",
+    position: "relative",
+  },
+  "& .MuiDataGrid-overlayWrapperInner": {
+    height: "100% !important",
+    position: "relative",
+  },
+};
+
+// ── Shared DataGrid wrapper ───────────────────────────────────────────────────
 function StyledDataGrid({
   rows,
   columns,
@@ -292,6 +185,10 @@ function StyledDataGrid({
         borderRadius: "14px",
         border: "1.5px solid #e0f4f7",
         boxShadow: "0 2px 12px rgba(0,151,178,0.07)",
+        // ← KEY FIX: fixed height so empty grid always shows the overlay
+        height: rows.length === 0 ? 260 : "auto",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <DataGrid
@@ -300,11 +197,14 @@ function StyledDataGrid({
         pageSizeOptions={pageSizeOptions}
         checkboxSelection={checkboxSelection}
         disableRowSelectionOnClick
-        autoHeight
+        // ← KEY FIX: only use autoHeight when there are rows
+        autoHeight={rows.length > 0}
         getRowHeight={() => "auto"}
         getEstimatedRowHeight={() => 72}
+        slots={{ noRowsOverlay: NoRowsOverlay }}
         sx={{
           ...dataGridSx,
+          flex: 1,
           "& .MuiDataGrid-cell": {
             ...dataGridSx["& .MuiDataGrid-cell"],
             alignItems: "center",
@@ -459,13 +359,11 @@ function NavBtn({ arrow, disabled, onClick }) {
 
 // ── Date Range Picker ─────────────────────────────────────────────────────────
 function DateRangePicker({ value, onChange }) {
-  // value = { from: Date|null, to: Date|null, label: string }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(null);
-  // left calendar month
   const [leftMonth, setLeftMonth] = useState(() => {
     const d = new Date(today);
     d.setMonth(d.getMonth() - 1);
@@ -535,7 +433,6 @@ function DateRangePicker({ value, onChange }) {
     setOpen(false);
   }
 
-  // effective "to" for highlight — use hovered if still selecting
   const effectiveTo =
     selectingTo && hovered && pendingFrom
       ? hovered >= pendingFrom
@@ -659,7 +556,6 @@ function DateRangePicker({ value, onChange }) {
 
   return (
     <Box sx={{ position: "relative" }}>
-      {/* Trigger */}
       <Box
         onClick={() => setOpen((o) => !o)}
         sx={{
@@ -708,7 +604,6 @@ function DateRangePicker({ value, onChange }) {
         </svg>
       </Box>
 
-      {/* Dropdown */}
       {open && (
         <Box
           sx={{
@@ -724,7 +619,6 @@ function DateRangePicker({ value, onChange }) {
             minWidth: 520,
           }}
         >
-          {/* Quick chips */}
           <Box
             sx={{
               display: "flex",
@@ -777,9 +671,7 @@ function DateRangePicker({ value, onChange }) {
             })}
           </Box>
 
-          {/* Calendars */}
           <Box sx={{ display: "flex", gap: 0, p: 2, pb: 1.5 }}>
-            {/* Left nav */}
             <Box
               sx={{
                 display: "flex",
@@ -801,7 +693,6 @@ function DateRangePicker({ value, onChange }) {
               }}
             />
             {renderMonth(rightMonth)}
-            {/* Right nav */}
             <Box
               sx={{
                 display: "flex",
@@ -815,7 +706,6 @@ function DateRangePicker({ value, onChange }) {
             </Box>
           </Box>
 
-          {/* Footer */}
           <Box
             sx={{
               display: "flex",
@@ -855,6 +745,7 @@ function DateRangePicker({ value, onChange }) {
     </Box>
   );
 }
+
 const PARTNER_OPTIONS = [
   "All Partners",
   "Ekart",
@@ -864,83 +755,6 @@ const PARTNER_OPTIONS = [
   "Xpressbees",
 ];
 const SEARCH_FIELDS = ["Order ID", "CMS ID", "SKU ID"];
-
-// ── Shared DataGrid sx ────────────────────────────────────────────────────────
-const dataGridSx = {
-  border: 0,
-  fontFamily: "inherit",
-  fontSize: "0.875rem",
-
-  "& .MuiDataGrid-columnHeaders": {
-    background: GRADIENT,
-    borderBottom: "none",
-  },
-  "& .MuiDataGrid-columnHeader": {
-    background: "transparent",
-  },
-  "& .MuiDataGrid-columnHeaderTitle": {
-    color: "#ffffff !important",
-    fontWeight: 700,
-    fontSize: "0.74rem",
-    letterSpacing: "0.05em",
-    textTransform: "uppercase",
-  },
-  "& .MuiDataGrid-columnHeader .MuiDataGrid-iconButtonContainer svg": {
-    color: "#fff",
-  },
-  "& .MuiDataGrid-columnSeparator svg": {
-    color: "rgba(255,255,255,0.3)",
-  },
-  "& .MuiDataGrid-columnHeaderCheckbox .MuiCheckbox-root": {
-    color: "#fff",
-  },
-  "& .MuiDataGrid-row": {
-    color: "#000000",
-    transition: "background 0.15s ease",
-  },
-  "& .MuiDataGrid-row:hover": {
-    background: "#edf8fb",
-    color: "#000000",
-  },
-  "& .MuiDataGrid-row.Mui-selected": {
-    background: "rgba(0,151,178,0.07)",
-    color: "#000000",
-    "&:hover": { background: "rgba(0,151,178,0.12)" },
-  },
-  "& .MuiDataGrid-cell": {
-    color: "#000000",
-    borderColor: "#e8f6f9",
-    fontSize: "0.875rem",
-    display: "flex",
-    alignItems: "center",
-  },
-  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-    outline: "none",
-  },
-  "& .MuiDataGrid-cellCheckbox .MuiCheckbox-root": {
-    color: "#b0b0b0",
-  },
-  "& .MuiCheckbox-root.Mui-checked": {
-    color: "#0097b2",
-  },
-  "& .MuiDataGrid-footerContainer": {
-    borderTop: "1.5px solid #e0f4f7",
-    background: "#f8fdfe",
-    color: "#000000",
-  },
-  "& .MuiTablePagination-root, & .MuiTablePagination-displayedRows, & .MuiTablePagination-selectLabel":
-    {
-      color: "#000000",
-    },
-  "& .MuiTablePagination-selectIcon": {
-    color: "#0097b2",
-  },
-  "& .MuiDataGrid-footerContainer .MuiIconButton-root": {
-    color: "#0097b2",
-  },
-};
-
-// ── Shared DataGrid wrapper ───────────────────────────────────────────────────
 
 const DownloadSVG = ({ color = "currentColor" }) => (
   <svg
@@ -988,7 +802,6 @@ function ActionBtn({ active, label }) {
   );
 }
 
-// ── Search Bar (shared) ───────────────────────────────────────────────────────
 function SearchBar({ searchField, setSearchField, searchVal, setSearchVal }) {
   return (
     <Box
@@ -1008,7 +821,6 @@ function SearchBar({ searchField, setSearchField, searchVal, setSearchVal }) {
         transition: "border-color 0.2s, box-shadow 0.2s",
       }}
     >
-      {/* Dropdown */}
       <Select
         value={searchField}
         onChange={(e) => setSearchField(e.target.value)}
@@ -1033,8 +845,6 @@ function SearchBar({ searchField, setSearchField, searchVal, setSearchVal }) {
           </MenuItem>
         ))}
       </Select>
-
-      {/* Text input */}
       <input
         value={searchVal}
         onChange={(e) => setSearchVal(e.target.value)}
@@ -1049,8 +859,6 @@ function SearchBar({ searchField, setSearchField, searchVal, setSearchVal }) {
           background: "transparent",
         }}
       />
-
-      {/* Search button */}
       <button
         style={{
           padding: "0 14px",
@@ -1081,7 +889,6 @@ function SearchBar({ searchField, setSearchField, searchVal, setSearchVal }) {
   );
 }
 
-// ── Filters Row (shared) ──────────────────────────────────────────────────────
 function FiltersRow({
   dateFilter,
   setDateFilter,
@@ -1191,7 +998,7 @@ function PastPaymentsTab() {
       flex: 1.4,
       renderCell: (params) => (
         <Box>
-          {params.row.cms.map((c, i) => (
+          {params.row.cms?.map((c, i) => (
             <Box
               key={i}
               sx={{ fontSize: "0.82rem", color: "#333", lineHeight: 1.8 }}
@@ -1208,7 +1015,7 @@ function PastPaymentsTab() {
       flex: 1,
       renderCell: (params) => (
         <Box>
-          {params.row.cms.map((c, i) => (
+          {params.row.cms?.map((c, i) => (
             <Box
               key={i}
               sx={{
@@ -1254,8 +1061,7 @@ function PastPaymentsTab() {
         }}
       >
         <Box sx={{ fontSize: "0.875rem", color: "#444", mb: 1 }}>
-          Last Payment <strong style={{ color: "#000" }}>(6th Mar 2026)</strong>
-          :
+          Last Payment <strong style={{ color: "#000" }}>(—)</strong>:
         </Box>
         <Box
           sx={{
@@ -1268,7 +1074,7 @@ function PastPaymentsTab() {
             mb: 2,
           }}
         >
-          ₹17,800.77
+          ₹0.00
         </Box>
         <Box
           sx={{
@@ -1291,7 +1097,7 @@ function PastPaymentsTab() {
               Delivered
             </Box>
             <Box sx={{ fontSize: "1rem", fontWeight: 700, color: "#2e7d1e" }}>
-              ₹18,614.97
+              ₹0.00
             </Box>
           </Box>
           <Box sx={{ flex: 1, pl: 2 }}>
@@ -1307,7 +1113,7 @@ function PastPaymentsTab() {
               Adjustment
             </Box>
             <Box sx={{ fontSize: "1rem", fontWeight: 700, color: "#c62828" }}>
-              ₹-814.2
+              ₹0.00
             </Box>
           </Box>
         </Box>
@@ -1505,7 +1311,6 @@ function UpcomingPaymentsTab() {
           </IconBtn>
         }
       />
-
       <StyledDataGrid
         rows={UPCOMING_PAYMENTS}
         columns={columns}
@@ -1529,7 +1334,6 @@ export default function PaymentsPage() {
         px: { xs: 2, md: 4 },
       }}
     >
-      {/* Page header */}
       <Box
         sx={{
           display: "flex",
@@ -1560,7 +1364,6 @@ export default function PaymentsPage() {
         </Stack>
       </Box>
 
-      {/* Tabs */}
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: "flex", borderBottom: "2px solid #e0f4f7" }}>
           {["Past Payments", "Upcoming Payments"].map((tab, i) => (
